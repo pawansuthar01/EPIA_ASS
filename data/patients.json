@@ -1,0 +1,48 @@
+[
+  {
+    "id": "5ad52f8d-aebc-410b-aa33-db9b23d5255e",
+    "name": "Maya Patel",
+    "phone": "+1 555 010 2020",
+    "consultationDate": "2026-11-10",
+    "followUpDate": "2026-11-10",
+    "followUpStatus": "pending",
+    "createdAt": "2026-11-10T05:18:24.857Z"
+  },
+  {
+    "id": "518e26f9-e5ca-41f1-b292-f1a044b9cdbb",
+    "name": "Maya Patel",
+    "phone": "+1 555 010 2020",
+    "consultationDate": "2026-11-10",
+    "followUpDate": "2026-11-10",
+    "followUpStatus": "pending",
+    "createdAt": "2026-11-10T05:18:32.424Z"
+  },
+  {
+    "id": "2b78126e-a2e5-49eb-b51b-28fdfded8537",
+    "name": "Maya Patel",
+    "phone": "+1 555 010 2020",
+    "consultationDate": "2026-11-10",
+    "followUpDate": "2026-11-10",
+    "followUpStatus": "pending",
+    "createdAt": "2026-11-10T05:18:33.282Z"
+  },
+  {
+    "id": "de22cc55-2caf-4cd2-b800-3d5db2f5997c",
+    "name": "Maya Patel",
+    "phone": "+1 555 010 2020",
+    "consultationDate": "2026-11-10",
+    "followUpDate": "2026-11-10",
+    "followUpStatus": "pending",
+    "createdAt": "2026-11-10T05:18:34.052Z"
+  },
+  {
+    "id": "02f69f3a-d0a1-4e82-8ba8-1cb461065252",
+    "name": "Maya Patel",
+    "phone": "+1 555 010 2020",
+    "consultationDate": "2026-11-10",
+    "followUpDate": "2026-11-10",
+    "followUpStatus": "completed",
+    "createdAt": "2026-11-10T05:20:29.996Z",
+    "completedAt": "2026-11-10T05:20:39.028Z"
+  }
+]

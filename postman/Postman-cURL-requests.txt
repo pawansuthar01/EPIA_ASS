@@ -1,0 +1,29 @@
+EPIA Patient Follow-up API cURL examples (not a directly importable Postman collection)
+For direct Postman import, use EPIA-Patient-Follow-Up.postman_collection.json.
+Start first: npm start
+Base URL: http://localhost:3000
+
+1. Health
+curl --location 'http://localhost:3000/api/health'
+
+2. Add a fictional patient
+Use today's local date for both dates so the patient is due now.
+curl --location 'http://localhost:3000/api/patients' --header 'Content-Type: application/json' --data '{"name":"Maya Patel","phone":"+1 555 010 2020","consultationDate":"YYYY-MM-DD","followUpDate":"YYYY-MM-DD"}'
+Copy the patient id from the response's data.id into PATIENT_ID below. Replace both YYYY-MM-DD values with today's date. Successful responses include success, message, and data; errors include success=false and a message.
+
+3. Get all patients
+curl --location 'http://localhost:3000/api/patients'
+
+4. Get due-today patients
+curl --location 'http://localhost:3000/api/patients/due-today'
+
+5. Generate Gemini draft
+curl --location 'http://localhost:3000/api/drafts/due-today'
+
+6. Record staff approval (optional: save reviewed text)
+curl --location --request PATCH 'http://localhost:3000/api/patients/PATIENT_ID/approve-draft' --header 'Content-Type: application/json' --data '{"draft":"Hello Maya, your follow-up is due today. Please contact the clinic to arrange a convenient time."}'
+
+7. Mark follow-up completed
+curl --location --request PATCH 'http://localhost:3000/api/patients/PATIENT_ID/complete'
+
+No endpoint sends a WhatsApp message. Success responses contain success, message, and data. Errors contain success=false and a message; validation errors also include field details. Common statuses: 201 created, 400 invalid input, 404 missing route/patient, 409 already completed, 413 body too large, 500 server/storage error, 502 Gemini request failed, 503 Gemini settings missing.
