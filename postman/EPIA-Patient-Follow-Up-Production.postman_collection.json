@@ -1,0 +1,198 @@
+{
+  "info": {
+    "_postman_id": "b5b1f28d-06fe-442c-ba2f-15df41f98ced",
+    "name": "EPIA Patient Follow-up API (Production)",
+    "description": "Backend assessment requests. Uses fictional patient data and never sends WhatsApp messages. Success responses contain success, message, data; errors contain success=false, message, and optional field details. Uses the deployed HTTPS API. It creates fictional demo records on the hosted service.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://epai-submit.deskgo.in"
+    },
+    {
+      "key": "patientId",
+      "value": ""
+    },
+    {
+      "key": "today",
+      "value": ""
+    },
+    {
+      "key": "conversationId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "API overview (GET /)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/"
+      }
+    },
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/health"
+      }
+    },
+    {
+      "name": "Add fictional patient due today",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const now = new Date();",
+              "const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;",
+              "pm.collectionVariables.set('today', today);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Patient created', () => pm.response.to.have.status(201));",
+              "const result = pm.response.json();",
+              "pm.test('Creation result is clear', () => pm.expect(result.message).to.eql('Patient created successfully.'));",
+              "if (result.data?.id) pm.collectionVariables.set('patientId', result.data.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Maya Patel\",\n  \"phone\": \"+1 555 010 2020\",\n  \"consultationDate\": \"{{today}}\",\n  \"followUpDate\": \"{{today}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/patients"
+      }
+    },
+    {
+      "name": "Get all patients",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/patients"
+      }
+    },
+    {
+      "name": "Get due-today patients",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/patients/due-today"
+      }
+    },
+    {
+      "name": "Generate drafts with selected AI provider",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/drafts/due-today"
+      }
+    },
+    {
+      "name": "Approve reviewed draft",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"draft\": \"Hello Maya, your follow-up is due today. Please contact the clinic to arrange a convenient time.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/patients/{{patientId}}/approve-draft"
+      }
+    },
+    {
+      "name": "Mark follow-up completed",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/api/patients/{{patientId}}/complete"
+      }
+    },
+    {
+      "name": "Start AI chat (POST /api/ai/chat)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('AI replied', () => pm.response.to.have.status(200));",
+              "const result = pm.response.json();",
+              "if (result.data?.conversationId) pm.collectionVariables.set('conversationId', result.data.conversationId);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"Our fictional clinic is scheduling follow-ups.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/ai/chat"
+      },
+      "description": "Send a message to start a conversation. Save the returned conversationId."
+    },
+    {
+      "name": "Continue AI chat with conversationId",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"conversationId\": \"{{conversationId}}\",\n  \"message\": \"What were we scheduling?\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/ai/chat"
+      },
+      "description": "Uses the same POST /api/ai/chat endpoint. Send the saved conversationId with the next message."
+    }
+  ]
+}

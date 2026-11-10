@@ -13,7 +13,7 @@ npm install
 npm start
 ```
 
-The API starts at `http://localhost:3000`. Set `PORT` to change the port. Patient records are saved in `data/patients.json`.
+The local API starts at `http://localhost:3000`. The deployed API is at `https://epai-submit.deskgo.in`. Set `PORT` to change the local port. Patient records are saved in `data/patients.json`.
 
 Choose the provider in `.env` with `AI_PROVIDER=AWS_BEDROCK` or `AI_PROVIDER=GEMINI`. Bedrock uses `AWS_BEDROCK_KEY`, `AWS_BEDROCK_REGION`, and `AWS_BEDROCK_MODEL`; Gemini uses `GEMINI_API_KEY` and `GEMINI_MODEL`. Bedrock is the default. `/api/health` reports the selected provider and whether its key is configured; the connection is checked when AI content is requested. Drafts and chat use only the selected provider, with no fallback. Only fictional patient name and consultation date are sent for patient drafts.
 
@@ -36,12 +36,14 @@ All responses use JSON with `success`, `message`, and `data` on success. Errors 
 
 | Method  | Endpoint                          | Purpose                                                                                       |
 | ------- | --------------------------------- | --------------------------------------------------------------------------------------------- |
+| `GET`   | `/`                               | Show API status and the full endpoint list                                                    |
 | `GET`   | `/api/health`                     | Health and AI setup status                                                                    |
 | `POST`  | `/api/patients`                   | Add `{ "name", "phone", "consultationDate", "followUpDate" }`                                 |
 | `GET`   | `/api/patients`                   | Get all patients                                                                              |
 | `GET`   | `/api/patients/due-today`         | Get pending follow-ups due today                                                              |
 | `GET`   | `/api/drafts/due-today`           | Generate AI drafts with the selected provider                                                 |
-| `POST`  | `/api/ai/chat`                    | Chat with the selected provider; pass the returned `conversationId` to continue saved history |
+| `POST`  | `/api/ai/chat`                    | Start a chat by sending `{ "message": "..." }`                                                |
+| `POST`  | `/api/ai/chat`                    | Continue that chat by sending its `conversationId` with the next message                         |
 | `PATCH` | `/api/patients/:id/approve-draft` | Record staff approval; optional body `{ "draft": "reviewed text" }` saves reviewed text       |
 | `PATCH` | `/api/patients/:id/complete`      | Mark a follow-up completed                                                                    |
 
@@ -69,11 +71,16 @@ To chat with the AI, send `{ "message": "..." }` to `/api/ai/chat`. The response
 npm test
 ```
 
-`npm test` uses temporary patient and conversation files and checks routes, provider selection, status messages, validation, malformed/oversized bodies, completed-patient approval, timeout reporting, and persisted chat context with mocked provider responses.
+There are currently no automated test files in the repository, so `npm test` discovers zero tests. Use the Postman collection or cURL examples below to check the API endpoints.
 
 ## Postman
 
-Import [`postman/EPIA-Patient-Follow-Up.postman_collection.json`](postman/EPIA-Patient-Follow-Up.postman_collection.json) with **Import → File**. Run the requests in order; the collection sets today's date and saves the created patient and chat IDs automatically. The `.txt` file is only for copying cURL commands into a terminal.
+Choose the collection for the API you want to use, then import it in Postman with **Import → File**:
+
+- Local: [`postman/EPIA-Patient-Follow-Up.postman_collection.json`](postman/EPIA-Patient-Follow-Up.postman_collection.json) uses `http://localhost:3000`.
+- Deployed: [`postman/EPIA-Patient-Follow-Up-Production.postman_collection.json`](postman/EPIA-Patient-Follow-Up-Production.postman_collection.json) uses `https://epai-submit.deskgo.in`.
+
+Run the requests in order. Each collection sets today's date and saves the created patient and chat IDs automatically. The production collection creates fictional records on the hosted API. `postman/Postman-cURL-requests.txt` is for copying cURL commands into a terminal; it is not an importable Postman collection.
 
 ## Submission files
 

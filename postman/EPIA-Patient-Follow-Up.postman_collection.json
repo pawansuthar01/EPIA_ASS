@@ -6,15 +6,37 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:3000" },
-    { "key": "patientId", "value": "" },
-    { "key": "today", "value": "" },
-    { "key": "conversationId", "value": "" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "patientId",
+      "value": ""
+    },
+    {
+      "key": "today",
+      "value": ""
+    },
+    {
+      "key": "conversationId",
+      "value": ""
+    }
   ],
   "item": [
     {
+      "name": "API overview (GET /)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/"
+      }
+    },
+    {
       "name": "Health",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/health" }
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/health"
+      }
     },
     {
       "name": "Add fictional patient due today",
@@ -45,72 +67,132 @@
       ],
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"name\": \"Maya Patel\",\n  \"phone\": \"+1 555 010 2020\",\n  \"consultationDate\": \"{{today}}\",\n  \"followUpDate\": \"{{today}}\"\n}",
-          "options": { "raw": { "language": "json" } }
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
         "url": "{{baseUrl}}/api/patients"
       }
     },
     {
       "name": "Get all patients",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/patients" }
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/patients"
+      }
     },
     {
       "name": "Get due-today patients",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/patients/due-today" }
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/patients/due-today"
+      }
     },
     {
       "name": "Generate drafts with selected AI provider",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/drafts/due-today" }
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/drafts/due-today"
+      }
     },
     {
       "name": "Approve reviewed draft",
       "request": {
         "method": "PATCH",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"draft\": \"Hello Maya, your follow-up is due today. Please contact the clinic to arrange a convenient time.\"\n}",
-          "options": { "raw": { "language": "json" } }
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
         "url": "{{baseUrl}}/api/patients/{{patientId}}/approve-draft"
       }
     },
     {
       "name": "Mark follow-up completed",
-      "request": { "method": "PATCH", "url": "{{baseUrl}}/api/patients/{{patientId}}/complete" }
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/api/patients/{{patientId}}/complete"
+      }
     },
     {
-      "name": "Start AI chat",
-      "event": [{
-        "listen": "test",
-        "script": {
-          "type": "text/javascript",
-          "exec": [
-            "pm.test('AI replied', () => pm.response.to.have.status(200));",
-            "const result = pm.response.json();",
-            "if (result.data?.conversationId) pm.collectionVariables.set('conversationId', result.data.conversationId);"
-          ]
+      "name": "Start AI chat (POST /api/ai/chat)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('AI replied', () => pm.response.to.have.status(200));",
+              "const result = pm.response.json();",
+              "if (result.data?.conversationId) pm.collectionVariables.set('conversationId', result.data.conversationId);"
+            ]
+          }
         }
-      }],
+      ],
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
-        "body": { "mode": "raw", "raw": "{\n  \"message\": \"Our fictional clinic is scheduling follow-ups.\"\n}", "options": { "raw": { "language": "json" } } },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"Our fictional clinic is scheduling follow-ups.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
         "url": "{{baseUrl}}/api/ai/chat"
-      }
+      },
+      "description": "Send a message to start a conversation. Save the returned conversationId."
     },
     {
-      "name": "Continue AI chat (tests saved context)",
+      "name": "Continue AI chat with conversationId",
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
-        "body": { "mode": "raw", "raw": "{\n  \"conversationId\": \"{{conversationId}}\",\n  \"message\": \"What were we scheduling?\"\n}", "options": { "raw": { "language": "json" } } },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"conversationId\": \"{{conversationId}}\",\n  \"message\": \"What were we scheduling?\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
         "url": "{{baseUrl}}/api/ai/chat"
-      }
+      },
+      "description": "Uses the same POST /api/ai/chat endpoint. Send the saved conversationId with the next message."
     }
   ]
 }

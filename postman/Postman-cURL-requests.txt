@@ -1,35 +1,39 @@
 EPIA Patient Follow-up API cURL examples (not a directly importable Postman collection)
-For direct Postman import, use EPIA-Patient-Follow-Up.postman_collection.json.
+For local Postman import, use EPIA-Patient-Follow-Up.postman_collection.json.
+For the deployed API, import EPIA-Patient-Follow-Up-Production.postman_collection.json.
 Start first: npm start
 Base URL: http://localhost:3000
 
-1. Health
+1. API overview (lists every endpoint)
+curl --location 'http://localhost:3000/'
+
+2. Health
 curl --location 'http://localhost:3000/api/health'
 
-2. Add a fictional patient
+3. Add a fictional patient
 Use today's local date for both dates so the patient is due now.
 curl --location 'http://localhost:3000/api/patients' --header 'Content-Type: application/json' --data '{"name":"Maya Patel","phone":"+1 555 010 2020","consultationDate":"YYYY-MM-DD","followUpDate":"YYYY-MM-DD"}'
 Copy the patient id from the response's data.id into PATIENT_ID below. Replace both YYYY-MM-DD values with today's date. Successful responses include success, message, and data; errors include success=false and a message.
 
-3. Get all patients
+4. Get all patients
 curl --location 'http://localhost:3000/api/patients'
 
-4. Get due-today patients
+5. Get due-today patients
 curl --location 'http://localhost:3000/api/patients/due-today'
 
-5. Generate draft with the selected AI provider
+6. Generate draft with the selected AI provider
 curl --location 'http://localhost:3000/api/drafts/due-today'
 
-6. Record staff approval (optional: save reviewed text)
+7. Record staff approval (optional: save reviewed text)
 curl --location --request PATCH 'http://localhost:3000/api/patients/PATIENT_ID/approve-draft' --header 'Content-Type: application/json' --data '{"draft":"Hello Maya, your follow-up is due today. Please contact the clinic to arrange a convenient time."}'
 
-7. Mark follow-up completed
+8. Mark follow-up completed
 curl --location --request PATCH 'http://localhost:3000/api/patients/PATIENT_ID/complete'
 
-8. Start an AI chat (save data.conversationId from the response)
+9. Start an AI chat with POST /api/ai/chat (save data.conversationId from the response)
 curl --location 'http://localhost:3000/api/ai/chat' --header 'Content-Type: application/json' --data '{"message":"We are scheduling fictional clinic follow-ups."}'
 
-9. Continue the same chat (use the saved conversationId)
+10. Continue chat using the same POST /api/ai/chat endpoint and saved conversationId
 curl --location 'http://localhost:3000/api/ai/chat' --header 'Content-Type: application/json' --data '{"conversationId":"CONVERSATION_ID","message":"What were we scheduling?"}'
 
 No endpoint sends a WhatsApp message. Select the AI provider in `.env` with `AI_PROVIDER=AWS_BEDROCK` or `AI_PROVIDER=GEMINI`. Success responses contain success, message, and data. Errors contain success=false and a message; validation errors also include field details. Common statuses: 201 created, 400 invalid input, 404 missing route/patient/conversation, 413 body too large, 500 server/storage error, 502 provider request failed, 503 provider/key configuration invalid, 504 provider timeout.

@@ -13,12 +13,14 @@ app.get("/", (request, response) =>
   success(response, 200, "API is running.", {
     name: "EPIA Patient Follow-up API",
     endpoints: [
+      "GET /",
       "GET /api/health",
       "POST /api/patients",
       "GET /api/patients",
       "GET /api/patients/due-today",
       "GET /api/drafts/due-today",
-      "POST /api/ai/chat",
+      "POST /api/ai/chat (start conversation)",
+      "POST /api/ai/chat (continue with conversationId)",
       "PATCH /api/patients/:id/approve-draft",
       "PATCH /api/patients/:id/complete",
     ],
