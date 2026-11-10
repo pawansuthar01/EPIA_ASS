@@ -17,7 +17,7 @@ curl --location 'http://localhost:3000/api/patients'
 4. Get due-today patients
 curl --location 'http://localhost:3000/api/patients/due-today'
 
-5. Generate Gemini draft
+5. Generate draft with the selected AI provider
 curl --location 'http://localhost:3000/api/drafts/due-today'
 
 6. Record staff approval (optional: save reviewed text)
@@ -26,4 +26,10 @@ curl --location --request PATCH 'http://localhost:3000/api/patients/PATIENT_ID/a
 7. Mark follow-up completed
 curl --location --request PATCH 'http://localhost:3000/api/patients/PATIENT_ID/complete'
 
-No endpoint sends a WhatsApp message. Success responses contain success, message, and data. Errors contain success=false and a message; validation errors also include field details. Common statuses: 201 created, 400 invalid input, 404 missing route/patient, 409 already completed, 413 body too large, 500 server/storage error, 502 Gemini request failed, 503 Gemini settings missing.
+8. Start an AI chat (save data.conversationId from the response)
+curl --location 'http://localhost:3000/api/ai/chat' --header 'Content-Type: application/json' --data '{"message":"We are scheduling fictional clinic follow-ups."}'
+
+9. Continue the same chat (use the saved conversationId)
+curl --location 'http://localhost:3000/api/ai/chat' --header 'Content-Type: application/json' --data '{"conversationId":"CONVERSATION_ID","message":"What were we scheduling?"}'
+
+No endpoint sends a WhatsApp message. Select the AI provider in `.env` with `AI_PROVIDER=AWS_BEDROCK` or `AI_PROVIDER=GEMINI`. Success responses contain success, message, and data. Errors contain success=false and a message; validation errors also include field details. Common statuses: 201 created, 400 invalid input, 404 missing route/patient/conversation, 413 body too large, 500 server/storage error, 502 provider request failed, 503 provider/key configuration invalid, 504 provider timeout.

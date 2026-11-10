@@ -44,5 +44,53 @@
     "followUpStatus": "completed",
     "createdAt": "2026-11-10T05:20:29.996Z",
     "completedAt": "2026-11-10T05:20:39.028Z"
+  },
+  {
+    "id": "2230819b-5f54-4a4e-81b8-c3f87b595a4f",
+    "name": "Maya Patel",
+    "phone": "+1 555 010 2020",
+    "consultationDate": "2026-11-10",
+    "followUpDate": "2026-11-10",
+    "followUpStatus": "completed",
+    "createdAt": "2026-11-10T05:28:21.880Z",
+    "draftApproval": "approved",
+    "approvedDraft": "Hello Maya, your follow-up is due today. Please contact the clinic to arrange a convenient time.",
+    "draftApprovedAt": "2026-11-10T05:28:23.334Z",
+    "completedAt": "2026-11-10T05:30:09.499Z"
+  },
+  {
+    "id": "40b307f6-100c-4905-b986-eb2383b5d8d3",
+    "name": "Maya Patel",
+    "phone": "+1 555 010 2020",
+    "consultationDate": "2026-11-10",
+    "followUpDate": "2026-11-10",
+    "followUpStatus": "pending",
+    "createdAt": "2026-11-10T05:29:59.078Z"
+  },
+  {
+    "id": "270990d3-4f4b-4fa8-be37-7df68c2fa9bd",
+    "name": "Maya Patel",
+    "phone": "+1 555 010 2020",
+    "consultationDate": "2026-11-10",
+    "followUpDate": "2026-11-10",
+    "followUpStatus": "completed",
+    "createdAt": "2026-11-10T05:43:54.636Z",
+    "draftApproval": "approved",
+    "approvedDraft": "Hello Maya, your follow-up is due today. Please contact the clinic to arrange a convenient time.",
+    "draftApprovedAt": "2026-11-10T05:44:05.517Z",
+    "completedAt": "2026-11-10T05:44:05.611Z"
+  },
+  {
+    "id": "7a75aa49-0fa4-4aed-b47d-27497c74d0db",
+    "name": "Maya Patel",
+    "phone": "+1 555 010 2020",
+    "consultationDate": "2026-11-10",
+    "followUpDate": "2026-11-10",
+    "followUpStatus": "completed",
+    "createdAt": "2026-11-10T05:48:32.711Z",
+    "draftApproval": "approved",
+    "approvedDraft": "Hello Maya, your follow-up is due today. Please contact the clinic to arrange a convenient time.",
+    "draftApprovedAt": "2026-11-10T05:48:35.887Z",
+    "completedAt": "2026-11-10T05:48:35.979Z"
   }
 ]

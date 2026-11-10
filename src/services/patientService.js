@@ -1,5 +1,6 @@
 const { randomUUID } = require('node:crypto');
 const patientRepository = require('../repositories/patientRepository');
+const { generateText, getProvider } = require('./aiService');
 const { isValidDate, getLocalDate } = require('../utils/date');
 
 function validatePatient(input) {
@@ -52,23 +53,11 @@ function getPatientsDueToday() {
 }
 
 async function createAiDraft(patient) {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GEMINI_KEY;
-  const model = process.env.GEMINI_MODEL;
-  if (!apiKey || !model) throw new Error('Set GEMINI_API_KEY and GEMINI_MODEL in .env.');
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
-    method: 'POST',
-    headers: { 'x-goog-api-key': apiKey, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: 'Write a brief, warm, non-clinical WhatsApp follow-up asking the patient to contact the clinic to arrange their follow-up. Do not give medical advice or mention symptoms. Return only the message.' }] },
-      contents: [{ role: 'user', parts: [{ text: `Patient first name: ${patient.name.trim().split(/\s+/)[0]}. Consultation date: ${patient.consultationDate}.` }] }],
-    }),
-    signal: AbortSignal.timeout(10000),
-  });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error?.message || `Gemini returned ${response.status}`);
-  const draft = data.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('').trim();
-  if (!draft) throw new Error('Gemini returned an empty draft.');
-  return { draft, aiProvider: 'gemini' };
+  const draft = await generateText([
+    { role: 'system', content: 'Write a brief, warm, non-clinical WhatsApp follow-up asking the patient to contact the clinic to arrange their follow-up. Do not give medical advice or mention symptoms. Return only the message.' },
+    { role: 'user', content: `Patient first name: ${patient.name.trim().split(/\s+/)[0]}. Consultation date: ${patient.consultationDate}.` },
+  ]);
+  return { draft, aiProvider: getProvider() };
 }
 
 async function getDraftsDueToday() {
@@ -86,10 +75,10 @@ async function getDraftsDueToday() {
   })));
 
   return {
-    aiProvider: [...new Set(drafts.map((draft) => draft.aiProvider))].join(', ') || 'gemini',
+    aiProvider: [...new Set(drafts.map((draft) => draft.aiProvider))].join(', ') || getProvider(),
     message: drafts.length
-      ? 'Gemini drafts generated. Review and approve each before manually copying; no messages were sent.'
-      : 'No follow-ups are due today, so Gemini drafts were not needed.',
+      ? `AI drafts generated using ${getProvider()}. Review and approve each before manually copying; no messages were sent.`
+      : 'No follow-ups are due today, so AI drafts were not needed.',
     drafts,
   };
 }
@@ -109,9 +98,7 @@ function approveDraft(patientId, draft) {
   const patients = getAllPatients();
   const patient = patients.find((item) => item.id === patientId);
   if (!patient) return { statusCode: 404, message: 'Draft was not approved: patient not found.' };
-  if (patient.followUpStatus === 'completed') {
-    return { statusCode: 409, message: 'Draft was not approved: this follow-up is already completed.' };
-  }
+  const alreadyCompleted = patient.followUpStatus === 'completed';
   if (draft !== undefined && (typeof draft !== 'string' || !draft.trim() || draft.length > 2000)) {
     return { statusCode: 400, message: 'Draft was not approved: reviewed draft must be 1 to 2000 characters.' };
   }
@@ -122,10 +109,13 @@ function approveDraft(patientId, draft) {
   patientRepository.saveAll(patients);
   return {
     statusCode: 200,
-    message: 'Draft approved by staff. No message was sent.',
+    message: alreadyCompleted
+      ? 'Draft approval saved. This follow-up was already completed; no message was sent.'
+      : 'Draft approved by staff. No message was sent.',
     data: {
       patientId: patient.id,
       approvalStatus: patient.draftApproval,
+      followUpStatus: patient.followUpStatus,
       sent: false,
     },
   };

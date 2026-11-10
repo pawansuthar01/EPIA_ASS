@@ -8,7 +8,8 @@
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:3000" },
     { "key": "patientId", "value": "" },
-    { "key": "today", "value": "" }
+    { "key": "today", "value": "" },
+    { "key": "conversationId", "value": "" }
   ],
   "item": [
     {
@@ -62,7 +63,7 @@
       "request": { "method": "GET", "url": "{{baseUrl}}/api/patients/due-today" }
     },
     {
-      "name": "Generate Gemini drafts",
+      "name": "Generate drafts with selected AI provider",
       "request": { "method": "GET", "url": "{{baseUrl}}/api/drafts/due-today" }
     },
     {
@@ -81,6 +82,35 @@
     {
       "name": "Mark follow-up completed",
       "request": { "method": "PATCH", "url": "{{baseUrl}}/api/patients/{{patientId}}/complete" }
+    },
+    {
+      "name": "Start AI chat",
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('AI replied', () => pm.response.to.have.status(200));",
+            "const result = pm.response.json();",
+            "if (result.data?.conversationId) pm.collectionVariables.set('conversationId', result.data.conversationId);"
+          ]
+        }
+      }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"message\": \"Our fictional clinic is scheduling follow-ups.\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{baseUrl}}/api/ai/chat"
+      }
+    },
+    {
+      "name": "Continue AI chat (tests saved context)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"conversationId\": \"{{conversationId}}\",\n  \"message\": \"What were we scheduling?\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{baseUrl}}/api/ai/chat"
+      }
     }
   ]
 }

@@ -1,6 +1,6 @@
 # EPIA Patient Follow-up API
 
-A small Node.js/Express REST API with JSON-file storage and a Gemini follow-up draft workflow. Patient examples are fictional. The API never connects to WhatsApp or sends messages.
+A small Node.js/Express REST API with JSON-file storage and switchable AWS Bedrock or Gemini follow-up drafts. Patient examples are fictional. The API never connects to WhatsApp or sends messages.
 
 ## Run
 
@@ -15,11 +15,17 @@ npm start
 
 The API starts at `http://localhost:3000`. Set `PORT` to change the port. Patient records are saved in `data/patients.json`.
 
-For Gemini drafts, copy `.env.example` to `.env` and set `GEMINI_API_KEY` (or `GEMINI_KEY`) and `GEMINI_MODEL`. `/api/health` reports whether both settings exist. Drafts come from Gemini only; a missing or rejected key returns an error. Only the fictional patient's first name and consultation date are sent to Gemini.
+Choose the provider in `.env` with `AI_PROVIDER=AWS_BEDROCK` or `AI_PROVIDER=GEMINI`. Bedrock uses `AWS_BEDROCK_KEY`, `AWS_BEDROCK_REGION`, and `AWS_BEDROCK_MODEL`; Gemini uses `GEMINI_API_KEY` and `GEMINI_MODEL`. Bedrock is the default. `/api/health` reports the selected provider and whether its key is configured; the connection is checked when AI content is requested. Drafts and chat use only the selected provider, with no fallback. Only fictional patient name and consultation date are sent for patient drafts.
 
 PowerShell key setup without a `.env` file:
 
 ```powershell
+# Choose AWS Bedrock
+$env:AI_PROVIDER = "AWS_BEDROCK"
+$env:AWS_BEDROCK_KEY = "your-bedrock-key"
+
+# Or choose Gemini
+$env:AI_PROVIDER = "GEMINI" # or AWS_BEDROCK
 $env:GEMINI_API_KEY = "your-key"
 npm start
 ```
@@ -34,7 +40,8 @@ All responses use JSON with `success`, `message`, and `data` on success. Errors 
 | `POST` | `/api/patients` | Add `{ "name", "phone", "consultationDate", "followUpDate" }` |
 | `GET` | `/api/patients` | Get all patients |
 | `GET` | `/api/patients/due-today` | Get pending follow-ups due today |
-| `GET` | `/api/drafts/due-today` | Generate Gemini drafts for due patients |
+| `GET` | `/api/drafts/due-today` | Generate AI drafts with the selected provider |
+| `POST` | `/api/ai/chat` | Chat with the selected provider; pass the returned `conversationId` to continue saved history |
 | `PATCH` | `/api/patients/:id/approve-draft` | Record staff approval; optional body `{ "draft": "reviewed text" }` saves reviewed text |
 | `PATCH` | `/api/patients/:id/complete` | Mark a follow-up completed |
 
@@ -43,16 +50,18 @@ All responses use JSON with `success`, `message`, and `data` on success. Errors 
 | `200` | Request completed; response message says what happened or whether there was no due patient. |
 | `201` | Patient created. |
 | `400` | Invalid fields, malformed JSON, or invalid approval body; check `message` and `details`. |
-| `404` | Route or patient ID does not exist. |
-| `409` | Follow-up cannot be approved because it is already completed. |
+| `404` | Route, patient ID, or conversation ID does not exist. |
 | `413` | Request body exceeds the 1 MB limit. |
 | `500` | Server or local storage error. |
-| `502` | Gemini rejected the request or failed to generate a draft; response explains why. |
-| `503` | Gemini API settings are missing. |
+| `502` | The selected provider rejected the request or failed to generate a response. |
+| `503` | `AI_PROVIDER` is invalid or its API key is missing. |
+| `504` | The selected provider did not respond within 60 seconds; retry the request. |
 
 New patients need a 2–80 character name, a valid phone number, valid dates, and a follow-up date on or after the consultation date. Invalid input returns `400` with each invalid field listed under `details`.
 
-Staff gets a draft from `GET /api/drafts/due-today`, reviews it, then calls the approval endpoint. The optional `draft` value stores the reviewed text. Approval does not send a WhatsApp message. No sending endpoint exists.
+Staff gets a draft from `GET /api/drafts/due-today`, reviews it, then calls the approval endpoint. The optional `draft` value stores the reviewed text. Approval does not send a WhatsApp message. A completed follow-up stays completed if staff later records draft approval. No sending endpoint exists.
+
+To chat with the AI, send `{ "message": "..." }` to `/api/ai/chat`. The response includes a `conversationId`; send that ID with later messages to restore the saved context. Conversations are stored in `data/conversations.json` and survive server restarts.
 
 ## Test
 
@@ -60,11 +69,11 @@ Staff gets a draft from `GET /api/drafts/due-today`, reviews it, then calls the 
 npm test
 ```
 
-`npm test` uses a temporary patient file and checks every route, success/error statuses, validation, malformed and oversized bodies, and Gemini error reporting without sending a real Gemini request.
+`npm test` uses temporary patient and conversation files and checks routes, provider selection, status messages, validation, malformed/oversized bodies, completed-patient approval, timeout reporting, and persisted chat context with mocked provider responses.
 
 ## Postman
 
-Import [`postman/EPIA-Patient-Follow-Up.postman_collection.json`](postman/EPIA-Patient-Follow-Up.postman_collection.json) with **Import → File**. Run the requests in order; the collection sets today's date and saves the created patient ID automatically. The `.txt` file is only for copying cURL commands into a terminal.
+Import [`postman/EPIA-Patient-Follow-Up.postman_collection.json`](postman/EPIA-Patient-Follow-Up.postman_collection.json) with **Import → File**. Run the requests in order; the collection sets today's date and saves the created patient and chat IDs automatically. The `.txt` file is only for copying cURL commands into a terminal.
 
 ## Submission files
 
