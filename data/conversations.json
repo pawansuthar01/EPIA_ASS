@@ -44,5 +44,51 @@
     ],
     "createdAt": "2026-11-10T05:48:36.059Z",
     "updatedAt": "2026-11-10T05:48:41.045Z"
+  },
+  {
+    "id": "26290ee7-d2b9-457d-9f9a-fd950e07c5ff",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Our fictional clinic is scheduling follow-ups."
+      },
+      {
+        "role": "assistant",
+        "content": "Understood. I'm ready to assist with scheduling follow-ups for the fictional clinic.\n\nPlease provide the details (e.g., patient name, reason for follow-up, preferred timeframe), and I can help organize the schedule or draft the necessary documentation."
+      },
+      {
+        "role": "user",
+        "content": "What were we scheduling?"
+      },
+      {
+        "role": "assistant",
+        "content": "You haven't specified the details yet. To proceed with scheduling follow-ups, please provide:\n\n*   **Patient Name**\n*   **Reason for Follow-up** (e.g., post-procedure check, lab review)\n*   **Preferred Timeframe** (e.g., 2 weeks, 1 month)\n\nOnce you provide these details, I can help organize the schedule or draft the necessary documentation."
+      }
+    ],
+    "createdAt": "2026-11-10T05:55:28.667Z",
+    "updatedAt": "2026-11-10T05:55:34.251Z"
+  },
+  {
+    "id": "0f0cec7b-5b8b-40e1-b494-70831d2d801b",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Our fictional clinic is scheduling follow-ups."
+      },
+      {
+        "role": "assistant",
+        "content": "Understood. I'm ready to assist with scheduling follow-ups for the fictional clinic.\n\nPlease provide the relevant details (e.g., patient name, provider, or preferred time frames), and I can help organize the schedule or draft reminder notes."
+      },
+      {
+        "role": "user",
+        "content": "hii there ?"
+      },
+      {
+        "role": "assistant",
+        "content": "Hello! How can I help with the follow-up scheduling today?"
+      }
+    ],
+    "createdAt": "2026-11-10T05:57:06.984Z",
+    "updatedAt": "2026-11-10T05:57:44.290Z"
   }
 ]
