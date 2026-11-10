@@ -34,28 +34,28 @@ npm start
 
 All responses use JSON with `success`, `message`, and `data` on success. Errors use `success: false` and a clear `message`; validation errors also include `details` by field. Dates must use `YYYY-MM-DD`.
 
-| Method | Endpoint | Purpose |
-| --- | --- | --- |
-| `GET` | `/api/health` | Health and AI setup status |
-| `POST` | `/api/patients` | Add `{ "name", "phone", "consultationDate", "followUpDate" }` |
-| `GET` | `/api/patients` | Get all patients |
-| `GET` | `/api/patients/due-today` | Get pending follow-ups due today |
-| `GET` | `/api/drafts/due-today` | Generate AI drafts with the selected provider |
-| `POST` | `/api/ai/chat` | Chat with the selected provider; pass the returned `conversationId` to continue saved history |
-| `PATCH` | `/api/patients/:id/approve-draft` | Record staff approval; optional body `{ "draft": "reviewed text" }` saves reviewed text |
-| `PATCH` | `/api/patients/:id/complete` | Mark a follow-up completed |
+| Method  | Endpoint                          | Purpose                                                                                       |
+| ------- | --------------------------------- | --------------------------------------------------------------------------------------------- |
+| `GET`   | `/api/health`                     | Health and AI setup status                                                                    |
+| `POST`  | `/api/patients`                   | Add `{ "name", "phone", "consultationDate", "followUpDate" }`                                 |
+| `GET`   | `/api/patients`                   | Get all patients                                                                              |
+| `GET`   | `/api/patients/due-today`         | Get pending follow-ups due today                                                              |
+| `GET`   | `/api/drafts/due-today`           | Generate AI drafts with the selected provider                                                 |
+| `POST`  | `/api/ai/chat`                    | Chat with the selected provider; pass the returned `conversationId` to continue saved history |
+| `PATCH` | `/api/patients/:id/approve-draft` | Record staff approval; optional body `{ "draft": "reviewed text" }` saves reviewed text       |
+| `PATCH` | `/api/patients/:id/complete`      | Mark a follow-up completed                                                                    |
 
-| Status | Meaning |
-| --- | --- |
-| `200` | Request completed; response message says what happened or whether there was no due patient. |
-| `201` | Patient created. |
-| `400` | Invalid fields, malformed JSON, or invalid approval body; check `message` and `details`. |
-| `404` | Route, patient ID, or conversation ID does not exist. |
-| `413` | Request body exceeds the 1 MB limit. |
-| `500` | Server or local storage error. |
-| `502` | The selected provider rejected the request or failed to generate a response. |
-| `503` | `AI_PROVIDER` is invalid or its API key is missing. |
-| `504` | The selected provider did not respond within 60 seconds; retry the request. |
+| Status | Meaning                                                                                     |
+| ------ | ------------------------------------------------------------------------------------------- |
+| `200`  | Request completed; response message says what happened or whether there was no due patient. |
+| `201`  | Patient created.                                                                            |
+| `400`  | Invalid fields, malformed JSON, or invalid approval body; check `message` and `details`.    |
+| `404`  | Route, patient ID, or conversation ID does not exist.                                       |
+| `413`  | Request body exceeds the 1 MB limit.                                                        |
+| `500`  | Server or local storage error.                                                              |
+| `502`  | The selected provider rejected the request or failed to generate a response.                |
+| `503`  | `AI_PROVIDER` is invalid or its API key is missing.                                         |
+| `504`  | The selected provider did not respond within 60 seconds; retry the request.                 |
 
 New patients need a 2–80 character name, a valid phone number, valid dates, and a follow-up date on or after the consultation date. Invalid input returns `400` with each invalid field listed under `details`.
 
@@ -77,6 +77,4 @@ Import [`postman/EPIA-Patient-Follow-Up.postman_collection.json`](postman/EPIA-P
 
 ## Submission files
 
-- `SUBMISSION.md` includes the implementation note and a three-minute demo script.
 - `postman/Postman-cURL-requests.txt` has example requests.
-- `.env` and `node_modules` are excluded from the submission ZIP.
